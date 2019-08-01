@@ -1,5 +1,6 @@
 const mysql = require("mysql");
 const inq = require('inquirer')
+const clear = require('clear')
 
 let con = mysql.createConnection({
     host: 'localhost',
@@ -13,31 +14,33 @@ con.connect(function(err){
     if (err) throw err;
 });
 
-function displayAllProducts() {
+function displayAllProducts(cb) {
     con.query('SELECT * FROM products', function(err, results) {
         console.log('\n')
         console.table(results)
         console.log('\n')
+        cb()
     })
 }
 
-function askToShowProducts() {
+function askToBuy() {
     inq.prompt({
         name: 'showAll',
         type: 'list',
-        message: 'Show all items in products table?',
+        message: 'Buy something or get the hell out!',
         choices: ['yes', 'no']
     })
     .then(function(results) {
         if (results.showAll === 'yes') {
-            displayAllProducts()
-            askToShowProducts()
+            clear()
+            console.log("Sorry we're actually closed!")
+            con.end()
         } else {
+            clear()
             console.log('bye!')
             con.end()
         }
     })
 }
 
-askToShowProducts()
-
+displayAllProducts(askToBuy)
